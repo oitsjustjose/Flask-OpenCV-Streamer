@@ -13,7 +13,7 @@ class LoginManager:
         self.fernet = Fernet(self.key)
         self.logins = self.load_logins()
 
-    def __getstate_(self):
+    def __getstate__(self):
         """An override for loading this object's state from pickle"""
         ret = {
             "path": self.path,

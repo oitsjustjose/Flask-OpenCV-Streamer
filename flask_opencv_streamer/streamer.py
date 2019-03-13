@@ -15,6 +15,8 @@ class Streamer:
 
     def __init__(self, port, requires_auth, stream_res=(1280, 720), login_file="logins", login_key=".login"):
         self.flask_name = "{}_{}".format(__name__, port)
+        self.login_file = login_file
+        self.login_key = login_key
         self.flask = Flask(self.flask_name)
         self.frame_to_stream = None
         self.guest_password = None
@@ -24,13 +26,11 @@ class Streamer:
         self.port = port
         self.req_auth = requires_auth
         self.stream_res = stream_res
-        self.login_file = login_file
-        self.login_key = login_key
         if requires_auth:
             self.generate_guest_password()
             self.login_manager = LoginManager(login_file, login_key)
 
-    def __getstate_(self):
+    def __getstate__(self):
         """An override for loading this object's state from pickle"""
         ret = {
             "flask_name": self.flask_name,
