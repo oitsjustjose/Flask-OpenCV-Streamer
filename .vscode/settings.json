@@ -1,3 +1,4 @@
 {
-    "python.linting.pylintEnabled": true
+    "python.linting.pylintEnabled": true,
+    "python.pythonPath": "/Users/jose/.local/share/virtualenvs/Flask-OpenCV-Streamer--9iRQ23d/bin/python"
 }
