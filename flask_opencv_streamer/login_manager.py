@@ -6,6 +6,7 @@ from cryptography.fernet import Fernet
 
 
 class LoginManager:
+    """A class to handle auth storage, using encryption"""
     def __init__(self, path_to_login_file, keyname):
         self.path = path_to_login_file
         self.keyname = keyname
@@ -87,25 +88,6 @@ class LoginManager:
             token = Fernet.generate_key()
             with open(self.keyname, "w+") as file:
                 file.write(token.decode('utf-8'))
+        if isinstance(token, bytes):
+            return bytes(token)
         return bytes(token.encode())
-
-
-# If we run this as an app it's to add/remove a new account
-if __name__ == "__main__":
-    ARGS = sys.argv[1:]
-    if len(ARGS) == 4:
-        if ARGS[1].lower() == "add":
-            LM = LoginManager(ARGS[0])
-            LM.add_login(ARGS[2], ARGS[3])
-            print("Successfully added new login!")
-            exit()
-    elif len(ARGS) == 3:
-        if ARGS[1].lower() == "rm":
-            LM = LoginManager(ARGS[0])
-            LM.remove_login(ARGS[2])
-            print("Sucessfully removed login!")
-            exit()
-    print("Incorrect usage. Usage:")
-    print("python login_mgr.py <path_to_login_file> add <username> <password>")
-    print("OR")
-    print("python login_mgr.py <path_to_login_file> rm <username>")
