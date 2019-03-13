@@ -14,7 +14,8 @@ class Streamer:
     """A clean wrapper class for a Flask OpenCV Video Streamer"""
 
     def __init__(self, port, requires_auth, stream_res=(1280, 720), login_file="logins", login_key=".login"):
-        self.flask = Flask("{}_{}".format(__name__, port))
+        self.flask_name = "{}_{}".format(__name__, port)
+        self.flask = Flask(self.flask_name)
         self.frame_to_stream = None
         self.guest_password = None
         self.password_create_time = None
@@ -23,9 +24,39 @@ class Streamer:
         self.port = port
         self.req_auth = requires_auth
         self.stream_res = stream_res
+        self.login_file = login_file
+        self.login_key = login_key
         if requires_auth:
             self.generate_guest_password()
             self.login_manager = LoginManager(login_file, login_key)
+
+    def __getstate_(self):
+        """An override for loading this object's state from pickle"""
+        ret = {
+            "flask_name": self.flask_name,
+            "port": self.port,
+            "req_auth": self.req_auth,
+            "stream_res": self.stream_res,
+            "login_file": self.login_file,
+            "login_key": self.login_key
+        }
+        return ret
+
+    def __setstate__(self, dict_in):
+        """An override for pickling this object's state"""
+        self.flask_name = dict_in["flask_name"]
+        self.flask = Flask(self.flask_name)
+        self.frame_to_stream = None
+        self.guest_password = None
+        self.password_create_time = None
+        self.thread = None
+        self.is_streaming = False
+        self.port = dict_in["port"]
+        self.req_auth = dict_in["req_auth"]
+        self.stream_res = dict_in["stream_res"]
+        if self.req_auth:
+            self.generate_guest_password()
+            self.login_manager = LoginManager(dict_in["login_file"], dict_in["login_key"])
 
     def start_streaming(self):
         """Starts the video stream hosting process"""
@@ -43,11 +74,13 @@ class Streamer:
             """The response for <url>"""
             return render_template('index.html')
 
-        self.thread = Thread(daemon=True, target=self.flask.run, kwargs={
-                             'host': '0.0.0.0',
-                             'port': self.port,
-                             'debug': False,
-                             'threaded': True
+        self.thread = Thread(daemon=True,
+                             target=self.flask.run,
+                             kwargs={
+                                 'host': '0.0.0.0',
+                                 'port': self.port,
+                                 'debug': False,
+                                 'threaded': True
                              })
         self.thread.start()
         self.is_streaming = True
@@ -58,7 +91,8 @@ class Streamer:
 
     def get_frame(self):
         """Encodes the OpenCV image to a 1280x720 image"""
-        _, jpeg = cv2.imencode('.jpg', cv2.resize(self.frame_to_stream, self.stream_res))
+        _, jpeg = cv2.imencode('.jpg', cv2.resize(
+            self.frame_to_stream, self.stream_res))
         return jpeg.tobytes()
 
     def gen(self):

@@ -8,7 +8,24 @@ from cryptography.fernet import Fernet
 class LoginManager:
     def __init__(self, path_to_login_file, keyname):
         self.path = path_to_login_file
-        self.key = self.load_key(keyname)
+        self.keyname = keyname
+        self.key = self.load_key()
+        self.fernet = Fernet(self.key)
+        self.logins = self.load_logins()
+
+    def __getstate_(self):
+        """An override for loading this object's state from pickle"""
+        ret = {
+            "path": self.path,
+            "keyname": self.keyname
+        }
+        return ret
+
+    def __setstate__(self, dict_in):
+        """An override for pickling this object's state"""
+        self.path = dict_in["path"]
+        self.keyname = dict_in["keyname"]
+        self.key = self.load_key()
         self.fernet = Fernet(self.key)
         self.logins = self.load_logins()
 
@@ -21,7 +38,8 @@ class LoginManager:
                 for line in lines:
                     decrypted_line = self.fernet.decrypt(bytes(line.encode()))
                     decrypted_line = decrypted_line.decode()
-                    username, password = decrypted_line.replace(" ", "").replace("\n", "").replace("\t", "").split(",")
+                    username, password = decrypted_line.replace(
+                        " ", "").replace("\n", "").replace("\t", "").split(",")
                     logins[username] = password
         return logins
 
@@ -56,18 +74,18 @@ class LoginManager:
         ret = self.fernet.encrypt(ret)
         return str(ret.decode('utf-8'))
 
-    def load_key(self, path):
+    def load_key(self):
         """Loads the key from a hidden location"""
         token = ""
-        if os.path.exists(path):
-            with open(path, "r") as file:
+        if os.path.exists(self.keyname):
+            with open(self.keyname, "r") as file:
                 lines = file.readlines()
                 for line in lines:
                     token = line.replace("\n", "")
                     break
         else:
             token = Fernet.generate_key()
-            with open(path, "w+") as file:
+            with open(self.keyname, "w+") as file:
                 file.write(token.decode('utf-8'))
         return bytes(token.encode())
 
