@@ -29,14 +29,14 @@ streamer = Streamer(port, require_login)
 video_capture = cv2.VideoCapture(0)
 
 while True:
-    _, frame = cap.read()
+    _, frame = video_capture.read()
 
     streamer.update_frame(frame)
 
     if not streamer.is_streaming:
         streamer.start_streaming()
 
-    cv2.waitKey(1)
+    cv2.waitKey(30)
 ```
 
 ### With authentication (A password will be generated for you, expiring every 24 hrs)
