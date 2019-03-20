@@ -55,14 +55,14 @@ streamer = Streamer(port, require_login, login_file=login_file, login_key=login_
 video_capture = cv2.VideoCapture(0)
 
 while True:
-    _, frame = cap.read()
+    _, frame = video_capture.read()
 
     streamer.update_frame(frame)
 
     if not streamer.is_streaming:
         streamer.start_streaming()
 
-    cv2.waitKey(1)
+    cv2.waitKey(30)
 ```
 
 **If there is no logins file or key found at the path given, it will create one for you**. Logins will be stored in a `.txt` file `logins.txt` but will be **encrypted**. Therefore, unless someone has the key (in this example, `loginkey.txt`) the `logins.txt` file will be able to show logins or passwords. It is very unsafe to keep the login key somewhere publicly accessible; it's suggested you hide it well and do not upload it anywhere.

@@ -13,7 +13,14 @@ from .login_manager import LoginManager
 class Streamer:
     """A clean wrapper class for a Flask OpenCV Video Streamer"""
 
-    def __init__(self, port, requires_auth, stream_res=(1280, 720), login_file="logins", login_key=".login"):
+    def __init__(
+        self,
+        port,
+        requires_auth,
+        stream_res=(1280, 720),
+        login_file="logins",
+        login_key=".login",
+    ):
         self.flask_name = "{}_{}".format(__name__, port)
         self.login_file = login_file
         self.login_key = login_key
@@ -38,7 +45,7 @@ class Streamer:
             "req_auth": self.req_auth,
             "stream_res": self.stream_res,
             "login_file": self.login_file,
-            "login_key": self.login_key
+            "login_key": self.login_key,
         }
         return ret
 
@@ -56,7 +63,9 @@ class Streamer:
         self.stream_res = dict_in["stream_res"]
         if self.req_auth:
             self.generate_guest_password()
-            self.login_manager = LoginManager(dict_in["login_file"], dict_in["login_key"])
+            self.login_manager = LoginManager(
+                dict_in["login_file"], dict_in["login_key"]
+            )
 
     def start_streaming(self):
         """Starts the video stream hosting process"""
@@ -66,47 +75,56 @@ class Streamer:
         @self.requires_auth
         def video_feed():
             """The response for <url>/video_feed"""
-            return Response(gen_func(), mimetype='multipart/x-mixed-replace; boundary=frame')
+            return Response(
+                gen_func(), mimetype="multipart/x-mixed-replace; boundary=frame"
+            )
 
-        @self.flask.route('/')
+        @self.flask.route("/")
         @self.requires_auth
         def index():
             """The response for <url>"""
-            return render_template('index.html')
+            return render_template("index.html")
 
-        self.thread = Thread(daemon=True,
-                             target=self.flask.run,
-                             kwargs={
-                                 'host': '0.0.0.0',
-                                 'port': self.port,
-                                 'debug': False,
-                                 'threaded': True
-                             })
+        self.thread = Thread(
+            daemon=True,
+            target=self.flask.run,
+            kwargs={
+                "host": "0.0.0.0",
+                "port": self.port,
+                "debug": False,
+                "threaded": True,
+            },
+        )
         self.thread.start()
         self.is_streaming = True
 
     def update_frame(self, frame):
         """Updates the frame for streaming"""
-        self.frame_to_stream = frame
+        self.frame_to_stream = self.get_frame(frame)
 
-    def get_frame(self):
+    def get_frame(self, frame):
         """Encodes the OpenCV image to a 1280x720 image"""
-        _, jpeg = cv2.imencode('.jpg', cv2.resize(
-            self.frame_to_stream, self.stream_res))
+        _, jpeg = cv2.imencode(
+            ".jpg", cv2.resize(frame, self.stream_res), params=(cv2.IMWRITE_JPEG_QUALITY, 70)
+        )
         return jpeg.tobytes()
 
     def gen(self):
         """A generator for the image."""
         while True:
-            frame = self.get_frame()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            frame = self.frame_to_stream
+            time.sleep(1/30)
+            yield (
+                b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
+            )
 
     def check_auth(self, username, password):
         """Dummy thing to check password"""
         # Generate a password if there is no password OR the one given is older than 24hrs
-        if ((self.guest_password is None or (time.time() - self.password_create_time) > 86400)
-                and self.req_auth):
+        if (
+            self.guest_password is None
+            or (time.time() - self.password_create_time) > 86400
+        ) and self.req_auth:
             self.generate_guest_password()
         # Refresh the login manager's logins from the disk, in case a new login has been generated
         self.login_manager.logins = self.login_manager.load_logins()
@@ -115,17 +133,20 @@ class Streamer:
             return password == self.login_manager.logins[username]
 
         # Otherwise check if it's the guest acct
-        return username == 'guest' and password == self.guest_password
+        return username == "guest" and password == self.guest_password
 
     def authenticate(self):
         """Sends a 401 response that enables basic auth"""
         return Response(
-            'Could not verify your access level for that URL.\n'
-            'You have to login with proper credentials', 401,
-            {'WWW-Authenticate': 'Basic realm="Login Required"'})
+            "Could not verify your access level for that URL.\n"
+            "You have to login with proper credentials",
+            401,
+            {"WWW-Authenticate": 'Basic realm="Login Required"'},
+        )
 
     def requires_auth(self, func):
         """A custom decorator for Flask streams"""
+
         @wraps(func)
         def decorated(*args, **kwargs):
             if self.req_auth:
@@ -135,6 +156,7 @@ class Streamer:
                 return func(*args, **kwargs)
             else:
                 return func(*args, **kwargs)
+
         return decorated
 
     def generate_guest_password(self):
@@ -142,5 +164,8 @@ class Streamer:
         print("Generating Flask password")
         self.guest_password = str(Fernet.generate_key().decode())
         self.password_create_time = time.time()
-        print("Password for stream on Port: {} is\n    {}".format(
-            self.port, self.guest_password))
+        print(
+            "Password for stream on Port: {} is\n    {}".format(
+                self.port, self.guest_password
+            )
+        )
