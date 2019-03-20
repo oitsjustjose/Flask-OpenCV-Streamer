@@ -18,6 +18,7 @@ class Streamer:
         port,
         requires_auth,
         stream_res=(1280, 720),
+        frame_rate=30,
         login_file="logins",
         login_key=".login",
     ):
@@ -33,6 +34,7 @@ class Streamer:
         self.port = port
         self.req_auth = requires_auth
         self.stream_res = stream_res
+        self.frame_rate = frame_rate
         if requires_auth:
             self.generate_guest_password()
             self.login_manager = LoginManager(login_file, login_key)
@@ -115,7 +117,7 @@ class Streamer:
         """A generator for the image."""
         while True:
             frame = self.frame_to_stream
-            time.sleep(1 / 30)
+            time.sleep(1 / self.frame_rate)
             yield (
                 b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
             )
