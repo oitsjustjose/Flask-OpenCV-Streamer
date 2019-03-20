@@ -7,6 +7,7 @@ from cryptography.fernet import Fernet
 
 class LoginManager:
     """A class to handle auth storage, using encryption"""
+
     def __init__(self, path_to_login_file, keyname):
         self.path = path_to_login_file
         self.keyname = keyname
@@ -16,10 +17,7 @@ class LoginManager:
 
     def __getstate__(self):
         """An override for loading this object's state from pickle"""
-        ret = {
-            "path": self.path,
-            "keyname": self.keyname
-        }
+        ret = {"path": self.path, "keyname": self.keyname}
         return ret
 
     def __setstate__(self, dict_in):
@@ -39,8 +37,12 @@ class LoginManager:
                 for line in lines:
                     decrypted_line = self.fernet.decrypt(bytes(line.encode()))
                     decrypted_line = decrypted_line.decode()
-                    username, password = decrypted_line.replace(
-                        " ", "").replace("\n", "").replace("\t", "").split(",")
+                    username, password = (
+                        decrypted_line.replace(" ", "")
+                        .replace("\n", "")
+                        .replace("\t", "")
+                        .split(",")
+                    )
                     logins[username] = password
         return logins
 
@@ -50,7 +52,7 @@ class LoginManager:
             os.remove(self.path)
         with open(self.path, "w") as file:
             for username in self.logins:
-                file.write(self.encrypt_line(username)+"\n")
+                file.write(self.encrypt_line(username) + "\n")
 
     def add_login(self, username, password):
         """Adds a new username and password, writing changes afterward"""
@@ -73,7 +75,7 @@ class LoginManager:
         ret = "{}, {}".format(username, self.logins[username]).encode()
         ret = bytes(ret)
         ret = self.fernet.encrypt(ret)
-        return str(ret.decode('utf-8'))
+        return str(ret.decode("utf-8"))
 
     def load_key(self):
         """Loads the key from a hidden location"""
@@ -87,7 +89,7 @@ class LoginManager:
         else:
             token = Fernet.generate_key()
             with open(self.keyname, "w+") as file:
-                file.write(token.decode('utf-8'))
+                file.write(token.decode("utf-8"))
         if isinstance(token, bytes):
             return bytes(token)
         return bytes(token.encode())

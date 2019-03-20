@@ -105,7 +105,9 @@ class Streamer:
     def get_frame(self, frame):
         """Encodes the OpenCV image to a 1280x720 image"""
         _, jpeg = cv2.imencode(
-            ".jpg", cv2.resize(frame, self.stream_res), params=(cv2.IMWRITE_JPEG_QUALITY, 70)
+            ".jpg",
+            cv2.resize(frame, self.stream_res),
+            params=(cv2.IMWRITE_JPEG_QUALITY, 70),
         )
         return jpeg.tobytes()
 
@@ -113,7 +115,7 @@ class Streamer:
         """A generator for the image."""
         while True:
             frame = self.frame_to_stream
-            time.sleep(1/30)
+            time.sleep(1 / 30)
             yield (
                 b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
             )
