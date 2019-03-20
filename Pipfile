@@ -5,11 +5,14 @@ verify_ssl = true
 
 [dev-packages]
 autopep8 = "*"
-pylint = "*"
 rope = "*"
+black = "*"
 
 [packages]
 flask-opencv-streamer = "*"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true
