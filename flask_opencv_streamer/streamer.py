@@ -87,6 +87,38 @@ class Streamer:
             """The response for <url>"""
             return render_template("index.html")
 
+        @self.flask.route("/change password")
+        def change_password():
+            """The response for <url>/change%20password"""
+            if self.req_auth:
+                return render_template("form.html")
+            else:
+                return "Auth not required, this page is not needed"
+
+        @self.flask.route("/change password result", methods=["POST", "GET"])
+        def result():
+            """The response for <url>/change%20password"""
+            if request.method == "POST":
+                result = request.form
+
+                # Confirmation password didn't match
+                if result["pw"] != result["pw_conf"]:
+                    return render_template(
+                        "fail.html", reason="New passwords did not match"
+                    )
+                # No username exists
+                if result["username"] not in list(self.login_manager.logins.keys()):
+                    return render_template("fail.html", reason="Username doesn't exist")
+                # Old password wrong
+                if result["old_pw"] != self.login_manager.logins[result["username"]]:
+                    return render_template(
+                        "fail.html", reason="Old password was incorrect"
+                    )
+
+                self.login_manager.remove_login(result["username"])
+                self.login_manager.add_login(result["username"], result["pw"])
+                return render_template("pass.html")
+
         self.thread = Thread(
             daemon=True,
             target=self.flask.run,
@@ -142,7 +174,7 @@ class Streamer:
     def authenticate(self):
         """Sends a 401 response that enables basic auth"""
         return Response(
-            "Authentication Failed\nPlease reload to log in with proper credentials",
+            "Authentication Failed. Please reload to log in with proper credentials",
             401,
             {"WWW-Authenticate": 'Basic realm="Login Required"'},
         )
