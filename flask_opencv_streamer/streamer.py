@@ -71,14 +71,14 @@ class Streamer:
 
     def start_streaming(self):
         """Starts the video stream hosting process"""
-        gen_func = self.gen
+        gen_function = self.gen
 
         @self.flask.route("/video_feed")
         @self.requires_auth
         def video_feed():
             """The response for <url>/video_feed"""
             return Response(
-                gen_func(), mimetype="multipart/x-mixed-replace; boundary=frame"
+                gen_function(), mimetype="multipart/x-mixed-replace; boundary=frame"
             )
 
         @self.flask.route("/")
@@ -142,8 +142,7 @@ class Streamer:
     def authenticate(self):
         """Sends a 401 response that enables basic auth"""
         return Response(
-            "Could not verify your access level for that URL.\n"
-            "You have to login with proper credentials",
+            "Authentication Failed\nPlease reload to log in with proper credentials",
             401,
             {"WWW-Authenticate": 'Basic realm="Login Required"'},
         )
