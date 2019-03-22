@@ -1,6 +1,5 @@
 """Handles logins from a file, and encryption of said file"""
 import os
-import sys
 
 from cryptography.fernet import Fernet
 
