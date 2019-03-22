@@ -9,7 +9,7 @@ def main():
 
     setuptools.setup(
         name="flask_opencv_streamer",
-        version="1.2",
+        version="1.3",
         url="https://github.com/oitsjustjose/Flask-OpenCV-Streamer",
         author="Jose Stovall",
         author_email="stovallj1995@gmail.com",
