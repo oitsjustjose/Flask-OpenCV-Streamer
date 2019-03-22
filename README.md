@@ -69,23 +69,10 @@ while True:
 
 ### Adding or removing your own logins
 
-In your root directory, you can include a templates folder which can be used for password change templates. Your file names must be:
+In your **root project directory**, you can include a `templates` folder which can be used for password change templates. Your file names must be:
 
 - `form.html`: Contains the HTML form for the password change.
 - `pass.html`: Contains the HTML for a pass event
 - `fail.html`: Contains the HTML for a fail event
 
-
-<!-- Currently, there is no streamlined way to add or remove logins. Fortunately it only needs to be done once per login and can be done very easily:
-
-```python
-from flask_opencv_streamer.login_mgr import LoginManager
-
-login_file = "logins.txt"
-login_key = "loginkey.txt"
-
-lm = LoginManager(login_file, login_key)
-lm.add_login("user", "hotdog123")
-lm.add_login("admin", "password")
-lm.remove_login("guest")
-``` -->
+Samples are included here in this repository
