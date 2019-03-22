@@ -1,10 +1,11 @@
 """Stores a Streamer class"""
 import time
+from datetime import datetime
 from functools import wraps
 from threading import Thread
-from cryptography.fernet import Fernet
 
 import cv2
+from cryptography.fernet import Fernet
 from flask import Flask, Response, render_template, request
 
 from .login_manager import LoginManager
@@ -76,7 +77,7 @@ class Streamer:
         @self.flask.route("/video_feed")
         @self.requires_auth
         def video_feed():
-            """The response for <url>/video_feed"""
+            """Route which renders solely the video"""
             return Response(
                 gen_function(), mimetype="multipart/x-mixed-replace; boundary=frame"
             )
@@ -84,12 +85,24 @@ class Streamer:
         @self.flask.route("/")
         @self.requires_auth
         def index():
-            """The response for <url>"""
+            """Route which renders the video within an HTML template"""
             return render_template("index.html")
+
+        @self.flask.route("/guest")
+        @self.requires_auth
+        def guest():
+            """Route which shows a logged in user the current guest password and how long it'll work"""
+            if self.req_auth:
+                return "<center>The current guest password is:<br>{}<br>Password will expire {}</center>".format(
+                    self.guest_password,
+                    str(datetime.fromtimestamp(self.password_create_time + 86400)),
+                )
+            else:
+                return "Auth not required, this page is not needed"
 
         @self.flask.route("/change password")
         def change_password():
-            """The response for <url>/change%20password"""
+            """Route which allows an authenticated user to chagne their password"""
             if self.req_auth:
                 return render_template("form.html")
             else:
@@ -97,7 +110,7 @@ class Streamer:
 
         @self.flask.route("/change password result", methods=["POST", "GET"])
         def result():
-            """The response for <url>/change%20password"""
+            """Route which responds to a change_password input"""
             if request.method == "POST":
                 result = request.form
 
