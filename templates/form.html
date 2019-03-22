@@ -1,132 +1,33 @@
 <!doctype html>
 <html>
 
-<head>
-    <title>Change Password</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <style>
-        body {
-            background-color: #202020;
-            color: #DDD;
-            max-width: 80%;
-            margin: auto;
-        }
-
-        table,
-        tr,
-        td,
-        td {
-            border: #DDD;
-        }
-
-        form {
-            color: #DDD;
-        }
-
-        input {
-            color: #DDD;
-        }
-
-        #submit {
-            position: relative;
-
-            display: block;
-            margin: 30px auto;
-            padding: 0;
-
-            overflow: hidden;
-
-            border-width: 0;
-            outline: none;
-            border-radius: 2px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
-
-            background-color: #26A69A;
-            color: #000;
-
-            transition: background-color .3s;
-            display: block;
-            padding: 12px 24px;
-        }
-
-        #submit:hover,
-        #submit:focus {
-            background-color: rgb(28, 196, 179);
-        }
-
-        #submit>* {
-            position: relative;
-        }
-
-        #submit:before {
-            content: "";
-
-            position: absolute;
-            top: 50%;
-            left: 50%;
-
-            display: block;
-            width: 0;
-            padding-top: 0;
-
-            border-radius: 100%;
-
-            background-color: rgba(236, 240, 241, .3);
-
-            -webkit-transform: translate(-50%, -50%);
-            -moz-transform: translate(-50%, -50%);
-            -ms-transform: translate(-50%, -50%);
-            -o-transform: translate(-50%, -50%);
-            transform: translate(-50%, -50%);
-        }
-
-        #submit:active:before {
-            width: 120%;
-            padding-top: 120%;
-
-            transition: width .2s ease-out, padding-top .2s ease-out;
-        }
-
-        /* Styles, not important */
-        *,
-        *:before,
-        *:after {
-            box-sizing: border-box;
-        }
-
-        html {
-            position: relative;
-            height: 100%;
-        }
-
-        h2 {
-            font-weight: normal;
-        }
-    </style>
-</head>
-
 <body>
-    <form action="../change%20password%20result" method="POST">
-        <table>
-            <tr>
-                <td>Username:</td>
-                <td><input type="text" name="username" /></td>
-            </tr>
-            <tr>
-                <td>Old Password</td>
-                <td><input type="password" name="old_pw" /></td>
-            </tr>
-            <tr>
-                <td>New Password</td>
-                <td><input type="password" name="pw" /></td>
-            </tr>
-            <tr>
-                <td>(Confirm)</td>
-                <td><input type="password" name="pw_conf" /></td>
-            </tr>
-        </table>
-        <input type="submit" value="Change Password" id="submit" />
-    </form>
+    <center>
+        <form action="../change%20password%20result" method="POST">
+            <table>
+                <tr>
+                    <th>Username:</th>
+                    <th><input type="text" name="username" /></th>
+                </tr>
+                <tr>
+                    <th>Old Password</th>
+                    <th><input type="password" name="old_pw" /></th>
+                </tr>
+                <tr>
+                    <th>New Password</th>
+                    <th><input type="password" name="pw" /></th>
+                </tr>
+                <tr>
+                    <th>(Confirm)</th>
+                    <th><input type="password" name="pw_conf" /></th>
+                </tr>
+                <tr>
+                    <th><input type="submit" value="Change Password" /></th>
+                    <th></th>
+                </tr>
+            </table>
+        </form>
+    </center>
 </body>
 
 </html>
