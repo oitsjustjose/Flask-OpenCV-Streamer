@@ -79,7 +79,7 @@ class Streamer:
         def video_feed():
             """Route which renders solely the video"""
             return Response(
-                gen_function(), mimetype="multipart/x-mixed-replace; boundary=frame"
+                gen_function(), mimetype="multipart/x-mixed-replace; boundary=jpgboundary"
             )
 
         @self.flask.route("/")
@@ -160,12 +160,19 @@ class Streamer:
 
     def gen(self):
         """A generator for the image."""
+        header = "--jpgboundary\r\nContent-Type: image/jpeg\r\n"
+        prefix = ""
         while True:
-            frame = self.frame_to_stream
-            time.sleep(1 / self.frame_rate)
-            yield (
-                b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
+            # frame = self.frame_to_stream
+            msg = (
+                prefix
+                + header
+                + "Content-Length: {}\r\n\r\n".format(len(self.frame_to_stream))
             )
+
+            yield (msg.encode("utf-8") + self.frame_to_stream)
+            prefix = "\r\n"
+            time.sleep(1 / self.frame_rate)
 
     def check_auth(self, username, password):
         """Dummy thing to check password"""
